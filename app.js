@@ -1,5 +1,4 @@
 let player;
-
 function loadPlayerAnimations() {
   const idle = loadAni("img/player_idle.png");
   idle.scale = 0.8;
@@ -77,14 +76,15 @@ function setup() {
   pipeHole.img.scale = 3.5;
   pipeHole.collider = "none";
 
-  Sol = new Sprite();
-  Sol.x = 600;
-  Sol.y = 550;
-  Sol.width = 1075;
-  Sol.img = "img/sol.png";
-  Sol.scale = 0.8;
-  Sol.collider = "static";
-  //Sol.debug ='true'
+  ground = new Sprite();
+  ground.x = 600;
+  ground.y = 550;
+  ground.width = 1075;
+  ground.h = 90;
+  ground.img = "img/sol.png";
+  ground.scale = 0.8;
+  ground.collider = "static";
+  //ground.debug = "true";
 
   beam = new Sprite();
   beam.x = 440;
@@ -142,6 +142,7 @@ function setup() {
   player.y = 400;
   player.w = 50;
   player.h = 80;
+  player.rotationLock = true;
   player.debug = "true";
 
   loadPlayerAnimations();
@@ -170,6 +171,50 @@ function setup() {
   plateform2.img = "img/tile_0090.png";
   plateform2.img.scale = 3.5;
   plateform2.collider = "kinematic";
+
+  messageW = new Sprite();
+  messageW.color = "grey";
+  messageW.w = 400;
+  messageW.h = 93;
+  messageW.textSize = 40;
+  messageW.text = "Vous avez bien fuit";
+  messageW.collider = "none";
+  messageW.visible = false;
+
+  messageL = new Sprite();
+  messageL.color = "red";
+  messageL.w = 400;
+  messageL.h = 93;
+  messageL.textSize = 40;
+  messageL.text = "Vous êtes mort";
+  messageL.collider = "none";
+  messageL.visible = false;
+
+  mob1 = new Sprite();
+  mob1.x = 0;
+  mob1.y = 50;
+  mob1.w = 60;
+  mob1.h = 90;
+  mob1.speed = 2;
+  mob1.direction = 0;
+  mob1.img = "img/zombie_walk1.png";
+  mob1.scale = 0.9;
+  mob1.rotationLock = true;
+  mob1.collider = "kinematic";
+  mob1.debug = "true";
+
+  mob2 = new Sprite();
+  mob2.x = 750;
+  mob2.y = 470;
+  mob2.w = 50;
+  mob2.img = "img/zombie_walk1.png";
+  mob2.speed = 1;
+  mob2.direction = 180;
+  mob2.h = 80;
+  mob2.rotationLock = true;
+  mob2.mirror.x = true;
+  mob2.collider = "kinematic";
+  mob2.debug = "true";
 }
 
 function draw() {
@@ -181,6 +226,7 @@ function draw() {
   //   if (plateform.y > 300) {
   // plateform.direction = -90
   // }
+  console.log(mob2.x);
 
   if (plateform.y < 150 || plateform.y > 450) {
     plateform.direction *= -1;
@@ -189,19 +235,35 @@ function draw() {
     plateform2.direction *= -1;
   }
 
+  if (mob2.x < 350) {
+    mob2.direction = 0;
+    mob2.mirror.x = false;
+  } else if (mob2.x > 800) {
+    mob2.direction = 180;
+    mob2.mirror.x = true;
+  }
+
+  if (mob1.x < 10) {
+    mob1.direction = 0;
+    mob1.mirror.x = false;
+  } else if (mob1.x > 800) {
+    mob1.direction = 180;
+    mob1.mirror.x = true;
+  }
+
   /* if (kb.pressing("left")) player.vel.x = -3;
   else if (kb.pressing("right")) player.vel.x = 3;
   else player.vel.x = 0;
   if (kb.pressing("space") && player.vel.y <= 0.2) {
     player.vel.y = -8;
   }*/
-  player.rotation = 0;
+
   if (kb.pressing("left")) {
-    player.vel.x = -7;
+    player.vel.x = -4;
     player.changeAni("walk");
     player.mirror.x = true;
   } else if (kb.pressing("right")) {
-    player.vel.x = 7;
+    player.vel.x = 4;
     player.changeAni("walk");
     player.mirror.x = false;
   }
@@ -220,9 +282,20 @@ function draw() {
     player.mirror.x = true;
   }
 
-  if (player.x < 0 && player.y < 120) {
-    message = new Sprite();
-    message.textSize = 40;
-    message.text = "Vous avez bien fuit";
+  if (player.x < -25 && player.y < 120) {
+    messageW.visible = true;
+    player.collider = "static";
+  }
+  if (player.y > 600) {
+    messageL.visible = true;
+  }
+
+  if (player.collides(mob2)) {
+    player.visible = false;
+    player.collider = "static";
+  }
+  if (player.collides(mob1)) {
+    player.visible = false;
+    player.collider = "static";
   }
 }
