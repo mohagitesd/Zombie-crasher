@@ -1,3 +1,9 @@
+let jumpSound;
+let deathSound;
+function preload() {
+  jumpSound = loadSound("sound/jump_07.wav");
+  deathSound = loadSound("sound/death.wav");
+}
 //animation player
 let player;
 function loadPlayerAnimations() {
@@ -19,7 +25,8 @@ function loadPlayerAnimations() {
 }
 function setup() {
   new Canvas(1200, 720);
-  world.gravity.y = 15;
+
+  world.gravity.y = 20;
   deadZone = new Sprite();
   deadZone.width = 1200;
   deadZone.height = 10;
@@ -142,6 +149,7 @@ function setup() {
   player.x = 100;
   player.y = 200;
   player.w = 50;
+  player.h = 80;
   player.friction = 0;
   player.h = 80;
   player.rotationLock = true;
@@ -154,6 +162,7 @@ function setup() {
   plateform.x = 1100;
   plateform.y = 360;
   plateform.w = 50;
+  plateform.h = 65;
   // plateform.vel.y = -1
   plateform.speed = 1;
   plateform.direction = -90;
@@ -166,6 +175,7 @@ function setup() {
   //plateform2.debug = "true";
   plateform2.x = 1040;
   plateform2.w = 50;
+  plateform2.h = 65;
   plateform2.y = 360;
   plateform2.speed = 1;
   plateform2.direction = -90;
@@ -196,27 +206,71 @@ function setup() {
   mob1.x = 0;
   mob1.y = 50;
   mob1.w = 60;
-  mob1.h = 90;
-  mob1.speed = 3;
+  mob1.h = 52;
+  mob1.offset.y = 10;
+  mob1.speed = 6;
   mob1.direction = 0;
   mob1.img = "img/zombie_walk1.png";
   mob1.scale = 0.9;
   mob1.rotationLock = true;
   mob1.collider = "kinematic";
-  //mob1.debug = "true";
+  mob1.debug = "true";
 
   mob2 = new Sprite();
   mob2.x = 750;
   mob2.y = 470;
   mob2.w = 50;
+  mob2.h = 52;
+  mob2.offset.y = 13;
   mob2.img = "img/zombie_walk1.png";
-  mob2.speed = 2;
+  mob2.speed = 6;
   mob2.direction = 180;
   mob2.h = 80;
   mob2.rotationLock = true;
   mob2.mirror.x = true;
   mob2.collider = "kinematic";
-  //mob2.debug = "true";
+  mob2.debug = "true";
+
+  //HUD
+  touchLeft = new Sprite();
+  touchLeft.collider = "static";
+  touchLeft.x = 960;
+  touchLeft.y = 650;
+  touchLeft.img = "img/touchArrow.png";
+  touchLeft.img.scale = 0.1;
+  touchLeft.mirror.x = true;
+
+  touchRight = new Sprite();
+  touchRight.collider = "static";
+  touchRight.x = 1040;
+  touchRight.y = 650;
+  touchRight.img = "img/touchArrow2.png";
+  touchRight.img.scale = 0.1;
+
+  space = new Sprite();
+  space.collider = "static";
+  space.x = 1000;
+  space.y = 690;
+  space.img = "img/space.png";
+  space.img.scale = 0.1;
+
+  enter = new Sprite();
+  enter.collider = "static";
+  enter.x = 1140;
+  enter.y = 670;
+  enter.img = "img/entrer.png";
+  enter.img.scale = 0.2;
+
+  presentation = new Sprite();
+  presentation.w = 1200;
+  presentation.h = 720;
+  presentation.img = "img/presentation.png";
+  presentation.collider = "none";
+  presentation.img.scale.x = 1.3;
+  presentation.img.scale.y = 1.1;
+  presentation.textSize = 54;
+  presentation.text = "Press echap";
+  presentation.visible = true;
 }
 
 function draw() {
@@ -228,8 +282,6 @@ function draw() {
   //   if (plateform.y > 300) {
   // plateform.direction = -90
   // }
-  console.log(mob2.x);
-
   if (plateform.y < 150 || plateform.y > 450) {
     plateform.direction *= -1;
   }
@@ -254,27 +306,29 @@ function draw() {
   }
 
   //player deplacement
-  /* if (kb.pressing("left")) player.vel.x = -3;
-  else if (kb.pressing("right")) player.vel.x = 3;
-  else player.vel.x = 0;
-  if (kb.pressing("space") && player.vel.y <= 0.2) {
-    player.vel.y = -8;
-  }*/
   if (kb.pressing("left")) {
     player.vel.x = -4;
     player.changeAni("walk");
     player.mirror.x = true;
+    touchLeft.img.scale = 0.12;
   } else if (kb.pressing("right")) {
     player.vel.x = 4;
     player.changeAni("walk");
     player.mirror.x = false;
+    touchRight.img.scale = 0.12;
   } else {
     player.vel.x = 0;
+    touchLeft.img.scale = 0.1;
+    touchRight.img.scale = 0.1;
   }
   if (kb.presses("space")) {
-    player.vel.y = -5;
+    player.vel.y = -8;
     player.changeAni("jump");
     player.mirror.x = false;
+    space.img.scale = 0.12;
+    jumpSound.play();
+  } else {
+    space.img.scale = 0.1;
   }
   if (!kb.pressing("left") && !kb.pressing("right") && !kb.pressing("space")) {
     player.changeAni("idle");
@@ -289,25 +343,24 @@ function draw() {
     messageW.visible = true;
     player.collider = "static";
   }
-  //Loose message
   if (player.y > 600) {
     messageL.visible = true;
   }
+  //Loose message
   if (player.collides(mob2) || player.collides(mob1)) {
     player.visible = false;
     messageL.visible = "true";
     player.collider = "static";
+    deathSound.play();
   }
 
-  /*if (player.collides()) {
-    player.friction = 10;
+  if (kb.presses("enter")) {
+    // Recharge la page pour réinitialiser le jeu
+    window.location.reload();
   }
-  if (
-    player.collides(beam) ||
-    player.collides(beam2) ||
-    player.collides(pipeV) ||
-    player.collides(pipeTurn)
-  ) {
-    player.friction = 10;
-  }*/
+
+  if (kb.pressing("escape")) {
+    // Recharge la page pour réinitialiser le jeu
+    presentation.visible = false;
+  }
 }
