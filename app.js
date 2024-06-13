@@ -1,3 +1,4 @@
+//animation player
 let player;
 function loadPlayerAnimations() {
   const idle = loadAni("img/player_idle.png");
@@ -18,7 +19,7 @@ function loadPlayerAnimations() {
 }
 function setup() {
   new Canvas(1200, 720);
-  world.gravity.y = 10;
+  world.gravity.y = 15;
   deadZone = new Sprite();
   deadZone.width = 1200;
   deadZone.height = 10;
@@ -70,11 +71,11 @@ function setup() {
 
   pipeHole = new Sprite();
   pipeHole.x = 879;
-  pipeHole.y = 435;
+  pipeHole.y = 400;
   pipeHole.img = "img/pipeHole.png";
   pipeHole.mirror.x = "true";
   pipeHole.img.scale = 3.5;
-  pipeHole.collider = "none";
+  pipeHole.collider = "static";
 
   ground = new Sprite();
   ground.x = 600;
@@ -126,7 +127,7 @@ function setup() {
   danger.h = 15;
   danger.scale = 3;
   danger.collider = "static";
-  danger.debug = "true";
+  //danger.debug = "true";
 
   coffre = new Sprite();
   coffre.img = "img/tile_0060.png";
@@ -141,14 +142,15 @@ function setup() {
   player.x = 100;
   player.y = 200;
   player.w = 50;
+  player.friction = 0;
   player.h = 80;
   player.rotationLock = true;
-  player.debug = "true";
+  //player.debug = "true";
 
   loadPlayerAnimations();
 
   plateform = new Sprite();
-  plateform.debug = "true";
+  //plateform.debug = "true";
   plateform.x = 1100;
   plateform.y = 360;
   plateform.w = 50;
@@ -161,7 +163,7 @@ function setup() {
   plateform.collider = "kinematic";
 
   plateform2 = new Sprite();
-  plateform2.debug = "true";
+  //plateform2.debug = "true";
   plateform2.x = 1040;
   plateform2.w = 50;
   plateform2.y = 360;
@@ -195,31 +197,31 @@ function setup() {
   mob1.y = 50;
   mob1.w = 60;
   mob1.h = 90;
-  mob1.speed = 2;
+  mob1.speed = 3;
   mob1.direction = 0;
   mob1.img = "img/zombie_walk1.png";
   mob1.scale = 0.9;
   mob1.rotationLock = true;
   mob1.collider = "kinematic";
-  mob1.debug = "true";
+  //mob1.debug = "true";
 
   mob2 = new Sprite();
   mob2.x = 750;
   mob2.y = 470;
   mob2.w = 50;
   mob2.img = "img/zombie_walk1.png";
-  mob2.speed = 1;
+  mob2.speed = 2;
   mob2.direction = 180;
   mob2.h = 80;
   mob2.rotationLock = true;
   mob2.mirror.x = true;
   mob2.collider = "kinematic";
-  mob2.debug = "true";
+  //mob2.debug = "true";
 }
 
 function draw() {
   background("white");
-  //deplacer la plateforme de haut en bas : en cours...
+  //the mouvement of plateform : from top to bottom
   //   if (plateform.y < 100) {
   // plateform.direction = 90
   // }
@@ -235,6 +237,7 @@ function draw() {
     plateform2.direction *= -1;
   }
 
+  // monster mouvement : left, right
   if (mob2.x < 350) {
     mob2.direction = 0;
     mob2.mirror.x = false;
@@ -242,7 +245,6 @@ function draw() {
     mob2.direction = 180;
     mob2.mirror.x = true;
   }
-
   if (mob1.x < 10) {
     mob1.direction = 0;
     mob1.mirror.x = false;
@@ -251,13 +253,13 @@ function draw() {
     mob1.mirror.x = true;
   }
 
+  //player deplacement
   /* if (kb.pressing("left")) player.vel.x = -3;
   else if (kb.pressing("right")) player.vel.x = 3;
   else player.vel.x = 0;
   if (kb.pressing("space") && player.vel.y <= 0.2) {
     player.vel.y = -8;
   }*/
-
   if (kb.pressing("left")) {
     player.vel.x = -4;
     player.changeAni("walk");
@@ -266,14 +268,14 @@ function draw() {
     player.vel.x = 4;
     player.changeAni("walk");
     player.mirror.x = false;
+  } else {
+    player.vel.x = 0;
   }
-
-  if (kb.pressing("space")) {
+  if (kb.presses("space")) {
     player.vel.y = -5;
     player.changeAni("jump");
     player.mirror.x = false;
   }
-
   if (!kb.pressing("left") && !kb.pressing("right") && !kb.pressing("space")) {
     player.changeAni("idle");
   }
@@ -282,27 +284,30 @@ function draw() {
     player.mirror.x = true;
   }
 
+  //Win message
   if (player.x < -25 && player.y < 120) {
     messageW.visible = true;
     player.collider = "static";
   }
+  //Loose message
   if (player.y > 600) {
     messageL.visible = true;
   }
-
   if (player.collides(mob2) || player.collides(mob1)) {
     player.visible = false;
     messageL.visible = "true";
     player.collider = "static";
   }
 
+  /*if (player.collides()) {
+    player.friction = 10;
+  }
   if (
     player.collides(beam) ||
     player.collides(beam2) ||
     player.collides(pipeV) ||
-    player.collides(pipeTurn) ||
-    player.collides(ground)
+    player.collides(pipeTurn)
   ) {
-    player.vel.y = 3.5;
-  }
+    player.friction = 10;
+  }*/
 }
