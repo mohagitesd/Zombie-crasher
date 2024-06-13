@@ -138,8 +138,8 @@ function setup() {
   coffre.collider = "static";
 
   player = new Sprite();
-  player.x = 400;
-  player.y = 400;
+  player.x = 100;
+  player.y = 200;
   player.w = 50;
   player.h = 80;
   player.rotationLock = true;
@@ -290,12 +290,19 @@ function draw() {
     messageL.visible = true;
   }
 
-  if (player.collides(mob2)) {
+  if (player.collides(mob2) || player.collides(mob1)) {
     player.visible = false;
+    messageL.visible = "true";
     player.collider = "static";
   }
-  if (player.collides(mob1)) {
-    player.visible = false;
-    player.collider = "static";
+
+  if (
+    player.collides(beam) ||
+    player.collides(beam2) ||
+    player.collides(pipeV) ||
+    player.collides(pipeTurn) ||
+    player.collides(ground)
+  ) {
+    player.vel.y = 3.5;
   }
 }
